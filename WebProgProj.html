@@ -1,0 +1,327 @@
+<html>
+	<head>
+		 <meta charset = "utf-8">
+		 <title>Music Label List</title> 
+		 <link rel="stylesheet" href="MusilocaStyle.css">
+	</head>
+	<script type="text/javascript">
+		var display = document.getElementById("Checker");
+		var storedArtist =[];
+		var storedAlbum =[];
+		var storedAlbumNum =[];
+		var storedSongs=[];
+		var storedSongsNum=[];
+		var artistIndex=0;
+		var albumIndex =0;
+		var albumttl=0;
+		var albumSum=0;
+		var songPos=0;
+		var counter=0;
+		var counterSong=0;
+
+		window.onload = function(){ 
+			loadSet();
+		}
+
+		function loadSet(){
+			var display = document.getElementById("Checker");
+			storedArtist = JSON.parse(localStorage.getItem("artistlist"));
+			storedAlbum = JSON.parse(localStorage.getItem("albumlist"));
+			storedAlbumNum = JSON.parse(localStorage.getItem("albumNum"));
+			storedSongs = JSON.parse(localStorage.getItem("songlist"));
+			storedSongsNum =JSON.parse(localStorage.getItem("songNum"));
+			counter=0;
+			counterSong=0;
+
+			var html="<table>";
+
+			if(storedArtist === null && storedAlbum === null ){
+					html+= "empty";
+				}else{
+					for (var i=0; i<storedArtist.length; i++){
+						html +="<tr><td>Artist Name: "+storedArtist[i]+"</td><td class='noBorders'>"+'<button onClick="deleteArtist(\'' + storedArtist[i] + '\')" />&minus;</button></td><td class="noBorders"></td></tr>';
+						html+= "<tr><td class ='noBorders'></td><td class ='noBordersLabel'>Albums of Artist</td><td class ='noBordersLabel'>| Songs of The Album</td></tr>";
+						for (var x=0; x<storedAlbumNum[i];x++){
+							html +="<tr><td class='noBorders'></td ><td>"+storedAlbum[counter]+'<button onClick="deleteAlbum(\'' + storedAlbum[counter] + '\',\'' +storedArtist[i]+'\')" />&minus;</button></td><td>'
+							+'<input type="text" id="songName'+counter+'"><button onclick="addSong(\''+storedAlbum[counter]+'\')">&plus;</button></td></tr>';
+							
+							for (var y=0; y<storedSongsNum[counter];y++){
+								if (storedSongs[counterSong] === ""){
+									html+='<tr><td class="noBorders"></td><td class="noBorders"></td><td class="noBorders"></td></tr>';
+								}
+								html +='<tr><td class="noBorders"></td><td class="noBorders"></td><td class="noBorders">'+ storedSongs[counterSong]+'<button onClick="deleteSong(\''+storedSongs[counterSong]+'\',\''+storedAlbum[counter]+'\')">&minus;</button></td></tr>';
+								counterSong++;
+							}
+							counter++;
+						}
+					}
+				}
+			html+="</table>";
+			display.innerHTML= html;
+		}
+
+		function addArtist(){
+
+			var input = document.getElementById("artistName").value;
+			var artistStore = localStorage.getItem("artistlist");
+			var albumNum = localStorage.getItem("albumNum");
+
+			if(artistStore === null){
+
+				var list=[];
+				var numOfAlbum =[];
+				list.push(input);
+				numOfAlbum.push(1);
+				localStorage.setItem("albumNum",JSON.stringify(numOfAlbum));
+				localStorage.setItem("artistlist",JSON.stringify(list));
+
+			}else{
+				storedArtist = JSON.parse(artistStore);
+				storedAlbumNum= JSON.parse(albumNum);
+				if (searchArtist(input) === true){
+					storedAlbumNum[artistIndex] = storedAlbumNum[artistIndex]+1;
+					localStorage.setItem("albumNum",JSON.stringify(storedAlbumNum));
+				}else{
+					storedArtist.push(input);
+					storedAlbumNum.push(1);
+					localStorage.setItem("artistlist",JSON.stringify(storedArtist));
+					localStorage.setItem("albumNum",JSON.stringify(storedAlbumNum));
+				}
+
+			}
+		}
+
+		function addAlbum(){
+				var input = document.getElementById("albumName").value;
+				var inputArt = document.getElementById("artistName").value;
+				var albumStore = localStorage.getItem("albumlist");
+				var songNum = localStorage.getItem("songNum");
+				var songStore = localStorage.getItem("songlist");
+
+				if(albumStore === null){
+
+					var list=[];
+					var list2=[];
+					var list3=[];
+					list.push(input);
+					list2.push(0);
+					list3.push("");
+					localStorage.setItem("albumlist",JSON.stringify(list));
+					localStorage.setItem("songlist",JSON.stringify(list3));
+					localStorage.setItem("songNum",JSON.stringify(list2));
+
+				}else{
+					storedAlbum = JSON.parse(albumStore);
+					storedSongsNum = JSON.parse(songNum);
+					storedSongs =JSON.parse(songStore);
+					if(searchArtist(inputArt) === true){
+						
+						
+						storedAlbum.splice(albumttl,0,input);
+						storedSongsNum.splice(albumttl,0,0);
+						
+						localStorage.setItem("songlist",JSON.stringify(storedSongs));
+						localStorage.setItem("songNum",JSON.stringify(storedSongsNum));
+						localStorage.setItem("albumlist",JSON.stringify(storedAlbum));
+					}else{
+						storedAlbum.push(input);
+						storedSongsNum.push(0);
+						
+						localStorage.setItem("albumlist",JSON.stringify(storedAlbum));
+						localStorage.setItem("songlist",JSON.stringify(storedSongs));
+						localStorage.setItem("songNum",JSON.stringify(storedSongsNum));
+					}
+				}
+			}
+
+		function addSong(name){
+
+			for (var x=0; x<counter++;x++){
+				if(document.getElementById("songName"+x).value != ""){
+					var input = document.getElementById("songName"+x).value;
+					x=counter;
+				}
+			}
+			var songStore = localStorage.getItem("songlist");
+			var songNum = localStorage.getItem("songNum");
+			storedSongs = JSON.parse(songStore);
+			storedSongsNum = JSON.parse(songNum);
+			if(searchAlbum(name) === true){
+				getSongPos();
+				if(storedSongs[0]===""){
+					storedSongs.splice(0,1);
+				}
+				storedSongs.splice(songPos,0,input);
+				storedSongsNum[albumIndex] = storedSongsNum[albumIndex]+1;
+				localStorage.setItem("songlist",JSON.stringify(storedSongs));
+				localStorage.setItem("songNum",JSON.stringify(storedSongsNum));
+			}
+			loadSet();
+		}	
+
+		function searchArtist(name){
+			storedArtist = JSON.parse(localStorage.getItem("artistlist"));
+			var state=false;
+
+			for (var x=0;x<storedArtist.length;x++){
+				if(storedArtist[x] === name){
+					state = true;
+					artistIndex = x;
+					x=storedArtist.length;
+				}
+			}
+			albumGet();
+			return state;
+		}
+
+		function searchAlbum(name){
+			storedAlbum= JSON.parse(localStorage.getItem("albumlist"));
+			for (var x=0;x<storedAlbum.length;x++){
+				if(storedAlbum[x] === name){
+					albumIndex= x;
+					x=storedAlbum.length;
+					return true;
+				}
+			}
+			getSongPos();
+		}
+
+		function getSongPos(){
+			var songNum = localStorage.getItem("songNum");
+			storedSongsNum = JSON.parse(songNum);
+			songPos = 0;
+			for (var x=0;x<albumIndex;x++){
+				songPos += storedSongsNum[x];
+			}
+		}
+
+		function albumGet(){
+			albumttl=0;
+			albumSum=0;
+			var albumNum = localStorage.getItem("albumNum");
+			storedAlbumNum= JSON.parse(albumNum);
+			for(var x=0;x<artistIndex;x++){
+				albumttl+=storedAlbumNum[x];
+			}
+			
+			for(var x=0;x<storedAlbumNum.length;x++){
+				albumSum+=storedAlbumNum[x];
+			}
+		}
+
+		function deleteArtist(name){
+			var artistStore = localStorage.getItem("artistlist");
+			var albumNum = localStorage.getItem("albumNum");
+			var albumStore = localStorage.getItem("albumlist");
+			var songStore = localStorage.getItem("songlist");
+			var songNum= localStorage.getItem("songNum");
+			storedAlbum = JSON.parse(albumStore);
+			storedArtist = JSON.parse(artistStore);
+			storedAlbumNum = JSON.parse(albumNum);
+			storedSongs = JSON.parse(songStore);
+			storedSongsNum = JSON.parse(songNum);
+
+			var placer =0;
+			if (searchArtist(name) === true){
+				albumGet();
+				placer =albumttl+storedAlbumNum[artistIndex];
+				for (var x=storedAlbumNum[artistIndex];x>0;x--){
+					placer -= 1;
+					searchAlbum(storedAlbum[placer]);
+					getSongPos();
+					storedSongs.splice(songPos, storedSongsNum[albumIndex]);
+					storedSongsNum.splice(albumIndex,1);
+					localStorage.setItem("songlist",JSON.stringify(storedSongs));
+					localStorage.setItem("songNum",JSON.stringify(storedSongsNum));
+				}
+				storedAlbum.splice(albumttl,storedAlbumNum[artistIndex]);
+				storedAlbumNum.splice(artistIndex,1);
+				storedArtist.splice(artistIndex,1);
+				localStorage.setItem("albumNum",JSON.stringify(storedAlbumNum));
+				localStorage.setItem("albumlist",JSON.stringify(storedAlbum));
+				localStorage.setItem("artistlist",JSON.stringify(storedArtist));
+				
+				loadSet();
+			}
+		}
+
+		function deleteAlbum(name,artist){
+		storedSongs =JSON.parse(localStorage.getItem("songlist"));
+		storedSongsNum = JSON.parse(localStorage.getItem("songNum"));
+
+		if(searchAlbum(name) === true){
+			getSongPos();
+			storedSongs.splice(songPos, storedSongsNum[albumIndex]);
+			storedSongsNum.splice(albumIndex,1);
+			localStorage.setItem("songlist",JSON.stringify(storedSongs));
+			localStorage.setItem("songNum",JSON.stringify(storedSongsNum));
+		}
+		storedAlbum = JSON.parse(localStorage.getItem("albumlist"));
+		var indexAlbum = storedAlbum.indexOf(name);
+		storedAlbum.splice(indexAlbum,1);
+		localStorage.setItem("albumlist",JSON.stringify(storedAlbum));
+		var albumNum = localStorage.getItem("albumNum");
+		storedAlbumNum= JSON.parse(albumNum);
+
+
+		if (searchArtist(artist) === true){
+			storedAlbumNum[artistIndex] = storedAlbumNum[artistIndex]-1;
+			localStorage.setItem("albumNum",JSON.stringify(storedAlbumNum));
+		}
+		loadSet();			
+		}
+
+		function deleteSong(name,album){
+			
+		storedSongs =JSON.parse(localStorage.getItem("songlist"));
+		var songIndex = storedSongs.indexOf(name);
+		storedSongs.splice(songIndex,1);
+		localStorage.setItem("songlist",JSON.stringify(storedSongs));
+		storedSongsNum = JSON.parse(localStorage.getItem("songNum"));
+
+		if (searchAlbum(album) === true){
+			storedSongsNum[albumIndex] = storedSongsNum[albumIndex]-1;
+			localStorage.setItem("songNum",JSON.stringify(storedSongsNum));
+		}
+		loadSet();	
+		}
+
+		function addSet(){
+			if(document.getElementById("artistName").value==="" || document.getElementById("albumName").value === ""){
+				alert("Insert both fields of the Arist Name and Album Name")
+			}else{
+				addArtist();
+				addAlbum();
+			}
+			loadSet();
+			document.getElementById("artistName").value="";
+			document.getElementById("albumName").value="";
+		}
+
+		function clearList(){//Use only to Clear all values no practical purpose
+			localStorage.removeItem("artistlist");
+			localStorage.removeItem("albumlist");
+			localStorage.removeItem("albumNum")
+			localStorage.removeItem("songlist");
+			localStorage.removeItem("songNum");
+			loadSet();	
+		}
+
+	</script>
+	<body style="background-image: linear-gradient(to bottom left, #dc143c, #8ebf42);">
+		<div>
+			<img src="Logo.png">
+			<br>
+			<h1>Musiloca</h1>
+			<br><br><br><br>
+			<div style="text-align: center;">
+				<label class="inputValues">Artist Name</Label><input type="text" id="artistName">
+				<label class="inputValues">Album Name</Label><input type="text" id="albumName">
+				<button onclick="addSet()">&plus;</button><button onclick="clearList()">&minus;</button>
+			<br><br><br>
+			</div>
+			<p id="Checker"></p>
+			</div>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,15 @@
+@font-face { font-family: OTech; src: url('OriginTech personal use.ttf'); }
+@font-face {font-family: AldoApache; src: url('AldotheApache.ttf')}
+img		   {width:300px;height:300px; border-radius: 50%; float:left ;}
+h1         {font-family: OTech;background-image: linear-gradient(to right, #1c87c9, #8ebf42); 
+			margin-left:100px ;margin-top:50px; text-align: center; font-size: 100px; border-radius: 50px; }
+table      {font-family: AldoApache; font-size: 30px; background-image:linear-gradient(to right, #28313b, #485461); 
+			border-radius:10px; color:white; margin-left: auto;margin-right: auto;  }
+td         {border:5px solid; border-radius: 10px;}
+Label	   {font-family: AldoApache; font-size: 30px;}
+input[type="text"]{font-family: Aldoapache;}
+p          {font-family: Aldoapache; font-size: 20px; text-align: center;}
+.noBorders { border:none; }
+.noBordersLabel { border:none; background:dimgray; }
+.inputValues {background-image: linear-gradient(to top, #2b65ec, #0bda51);border-radius:10%;}
+input[type="text"] { font-size:20px; border:none; background:floralwhite; }
